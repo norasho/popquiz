@@ -5,6 +5,14 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+@theme {
+    --color-brand-dark: #0c0c0c;
+    --color-brand-green: #a855f7;
+    --color-brand-purple: #8b61ff;
+    --color-brand-black: #000000;
+    --color-brand-white: #ffffff;
+}
+
 @layer base {
     html {
         color-scheme: dark;
@@ -22,6 +30,7 @@
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
         min-height: 100dvh;
+        font-family: 'Inter', sans-serif;
     }
 
     /* Remove number input spinners across browsers */
@@ -42,7 +51,7 @@
 
     /* Consistent focus outline */
     :focus-visible {
-        outline: 2px solid theme('colors.violet.500');
+        outline: 2px solid var(--color-brand-purple);
         outline-offset: 2px;
     }
     :focus:not(:focus-visible) {
@@ -60,10 +69,17 @@
         font-family: 'Zain', sans-serif;
     }
 
-    /* Consistent backdrop blur with Safari prefix */
     .nav-blur {
-        background-color: rgb(17 24 39 / 0.85);
+        background-color: rgb(12 12 12 / 0.9);
         -webkit-backdrop-filter: blur(12px);
         backdrop-filter: blur(12px);
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
     }
 }

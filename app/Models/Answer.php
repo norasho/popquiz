@@ -17,4 +17,13 @@ class Answer extends Model
     {
         return $this->belongsTo(Question::class);
     }
+
+    public function getAnswerTextAttribute($value): string
+    {
+        if (app()->getLocale() === 'ar' && $this->answer_text_ar) {
+            return $this->answer_text_ar;
+        }
+
+        return $value;
+    }
 }

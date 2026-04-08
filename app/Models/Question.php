@@ -31,4 +31,22 @@ class Question extends Model
     {
         return $this->time_limit ?? $this->quiz->time_limit_per_question;
     }
+
+    public function getQuestionTextAttribute($value): string
+    {
+        if (app()->getLocale() === 'ar' && $this->question_text_ar) {
+            return $this->question_text_ar;
+        }
+
+        return $value;
+    }
+
+    public function getHintAttribute($value): ?string
+    {
+        if (app()->getLocale() === 'ar' && $this->hint_ar) {
+            return $this->hint_ar;
+        }
+
+        return $value;
+    }
 }

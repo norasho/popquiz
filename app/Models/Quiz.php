@@ -34,9 +34,27 @@ class Quiz extends Model
     public function getDifficultyColorAttribute(): string
     {
         return match ($this->difficulty) {
-            'easy'   => 'text-green-400 bg-green-400/10 border-green-400/30',
-            'hard'   => 'text-red-400 bg-red-400/10 border-red-400/30',
-            default  => 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
+            'easy' => 'text-green-400 bg-green-400/10 border-green-400/30',
+            'hard' => 'text-red-400 bg-red-400/10 border-red-400/30',
+            default => 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
         };
+    }
+
+    public function getTitleAttribute($value): string
+    {
+        if (app()->getLocale() === 'ar' && $this->title_ar) {
+            return $this->title_ar;
+        }
+
+        return $value;
+    }
+
+    public function getDescriptionAttribute($value): ?string
+    {
+        if (app()->getLocale() === 'ar' && $this->description_ar) {
+            return $this->description_ar;
+        }
+
+        return $value;
     }
 }

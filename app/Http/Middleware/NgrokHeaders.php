@@ -11,6 +11,7 @@ class NgrokHeaders
     {
         $response = $next($request);
         $response->headers->set('ngrok-skip-browser-warning', 'true');
+
         return $response;
     }
 }

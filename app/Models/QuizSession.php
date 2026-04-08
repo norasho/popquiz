@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,7 +23,7 @@ class QuizSession extends Model
     }
 
     /** Players active within the last 90 seconds. */
-    public static function activePlayers(int $quizId): \Illuminate\Database\Eloquent\Collection
+    public static function activePlayers(int $quizId): Collection
     {
         return static::where('quiz_id', $quizId)
             ->where('last_seen_at', '>=', now()->subSeconds(90))
