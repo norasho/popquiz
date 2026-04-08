@@ -3,12 +3,14 @@
 namespace App\Livewire;
 
 use App\Models\Quiz;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class QuizBrowser extends Component
 {
     public string $playerName = '';
     public string $playerEmoji = '🎯';
+    public string $playerShortId = '';
     public string $search = '';
     public string $category = '';
     public ?int $selectedQuizId = null;
@@ -20,6 +22,12 @@ class QuizBrowser extends Component
     {
         $this->locale = session('locale', 'en');
         app()->setLocale($this->locale);
+
+        if (!session('player_id')) {
+            session(['player_id'       => (string) Str::uuid()]);
+            session(['player_short_id' => strtoupper(Str::random(5))]);
+        }
+        $this->playerShortId = session('player_short_id');
     }
 
     public function startQuiz(): void
@@ -37,7 +45,7 @@ class QuizBrowser extends Component
             ] : []
         );
 
-        session(['player_name' => $this->playerName, 'player_emoji' => $this->playerEmoji]);
+        session(['player_name' => $this->playerName, 'player_emoji' => $this->playerEmoji, 'player_short_id' => $this->playerShortId]);
         $this->redirectRoute('quiz.play', ['quiz' => $this->selectedQuizId]);
     }
 

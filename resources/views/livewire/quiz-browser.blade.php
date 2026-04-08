@@ -22,6 +22,7 @@
             class="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 transition-colors"
             dir="{{ $locale === 'ar' ? 'rtl' : 'ltr' }}">
         @error('playerName') <p class="text-red-400 text-sm mt-1">{{ $message }}</p> @enderror
+        <p class="text-xs text-gray-600 font-mono mt-2">ID: #{{ $playerShortId }}</p>
     </div>
 
     {{-- Search & Filter --}}
