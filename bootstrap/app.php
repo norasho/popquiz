@@ -11,11 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(function ($request, $next) {
-            $response = $next($request);
-            $response->headers->set('ngrok-skip-browser-warning', 'true');
-            return $response;
-        });
+        $middleware->trustProxies(at: '*');
+        $middleware->append(\App\Http\Middleware\NgrokHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

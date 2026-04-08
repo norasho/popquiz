@@ -109,7 +109,7 @@ class QuizPlayer extends Component
         $this->hasAnswered = false;
         $this->isCorrect = false;
         $q = $this->quiz->questions[$this->currentIndex];
-        $this->timeLeft = $q->time_limit ?? $this->quiz->time_limit_per_question;
+        $this->timeLeft = $q->effective_time_limit;
         $this->startedAt = time();
         $this->dispatch('timer-start', seconds: $this->timeLeft);
     }
@@ -128,12 +128,11 @@ class QuizPlayer extends Component
 
         $this->isCorrect = $answer?->is_correct ?? false;
 
-        $timeUsed    = time() - $this->startedAt;
-        $timeLimit   = $question->time_limit ?? $this->quiz->time_limit_per_question;
+        $timeUsed     = time() - $this->startedAt;
         $pointsEarned = 0;
 
         if ($this->isCorrect) {
-            $ratio        = max(0, 1 - ($timeUsed / $timeLimit));
+            $ratio        = max(0, 1 - ($timeUsed / $question->effective_time_limit));
             $bonus        = (int) ($question->points * 0.5 * $ratio);
             $pointsEarned = $question->points + $bonus;
             $this->score += $pointsEarned;
@@ -142,16 +141,7 @@ class QuizPlayer extends Component
             $this->wrongCount++;
         }
 
-        $isAr = $this->locale === 'ar';
-        $this->answerDetails[] = [
-            'question'      => $isAr && $question->question_text_ar ? $question->question_text_ar : $question->question_text,
-            'selected'      => $isAr && $answer?->answer_text_ar ? $answer->answer_text_ar : ($answer?->answer_text ?? 'No answer'),
-            'correct'       => $isAr && $correct?->answer_text_ar ? $correct->answer_text_ar : ($correct?->answer_text ?? ''),
-            'is_correct'    => $this->isCorrect,
-            'points_earned' => $pointsEarned,
-            'time_used'     => $timeUsed,
-        ];
-
+        $this->answerDetails[] = $this->buildAnswerDetail($question, $answer, $correct, $pointsEarned, $timeUsed);
         $this->phase = 'result';
         $this->upsertSession();
     }
@@ -169,18 +159,22 @@ class QuizPlayer extends Component
         $correct  = $question->answers->firstWhere('is_correct', true);
         $this->wrongCount++;
 
-        $isAr = $this->locale === 'ar';
-        $this->answerDetails[] = [
-            'question'      => $isAr && $question->question_text_ar ? $question->question_text_ar : $question->question_text,
-            'selected'      => __('ui.time_up'),
-            'correct'       => $isAr && $correct?->answer_text_ar ? $correct->answer_text_ar : ($correct?->answer_text ?? ''),
-            'is_correct'    => false,
-            'points_earned' => 0,
-            'time_used'     => $question->time_limit ?? $this->quiz->time_limit_per_question,
-        ];
-
+        $this->answerDetails[] = $this->buildAnswerDetail($question, null, $correct, 0, $question->effective_time_limit);
         $this->phase = 'result';
         $this->upsertSession();
+    }
+
+    private function buildAnswerDetail($question, $answer, $correct, int $pointsEarned, int $timeUsed): array
+    {
+        $isAr = $this->locale === 'ar';
+        return [
+            'question'      => $isAr && $question->question_text_ar ? $question->question_text_ar : $question->question_text,
+            'selected'      => $answer ? ($isAr && $answer->answer_text_ar ? $answer->answer_text_ar : $answer->answer_text) : __('ui.time_up'),
+            'correct'       => $isAr && $correct?->answer_text_ar ? $correct->answer_text_ar : ($correct?->answer_text ?? ''),
+            'is_correct'    => $this->isCorrect,
+            'points_earned' => $pointsEarned,
+            'time_used'     => $timeUsed,
+        ];
     }
 
     public function nextQuestion(): void
@@ -229,7 +223,7 @@ class QuizPlayer extends Component
             'text'       => $isAr && $q->question_text_ar ? $q->question_text_ar : $q->question_text,
             'hint'       => $isAr && $q->hint_ar ? $q->hint_ar : $q->hint,
             'points'     => $q->points,
-            'time_limit' => $q->time_limit ?? $this->quiz->time_limit_per_question,
+            'time_limit' => $q->effective_time_limit,
             'answers'    => $q->answers->map(fn($a) => [
                 'id'         => $a->id,
                 'text'       => $isAr && $a->answer_text_ar ? $a->answer_text_ar : $a->answer_text,
